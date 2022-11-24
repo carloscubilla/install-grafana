@@ -1,27 +1,23 @@
 ---
-- name: Descargar RPM.
+- name: Descarga RPM.
   get_url:
     url: '{{ grafana }}'
     dest: /tmp
     mode: '0755'
 
 - name: Instalar Grafana.
-  yum:
-    name: /tmp/'{{ version }}'
+  package:
+    name: '{{ grafana }}'
     state: present
+    disable_gpg_check: true
 
-
-- name: Systemctl reload
-  systemd: 
-    daemon_reload: yes
-
-- name: Iniciar servicios.
-  service:
+- name: Iniciar servicio.
+  systemd:
     name: grafana-server
     state: started
     enabled: yes
 
-- name: Agregar permisos en el firewall.
+- name: Agregar permisos
   firewalld:
     port: 3000/tcp
     permanent: yes
@@ -32,7 +28,7 @@
     name: firewalld
     state: reloaded
 
-- name: Chequear que el puerto 3000 este disponible.
+- name: Chequear el puerto 3000
   wait_for:
     port: 3000
     state: started
